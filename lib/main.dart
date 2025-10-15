@@ -1,13 +1,10 @@
 import 'package:flutter/material.dart';
 import 'database_helper.dart';
 
-// Here we are using a global variable. You can use something like
-// get_it in a production app.
 final dbHelper = DatabaseHelper();
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  // initialize the database
   await dbHelper.init();
   runApp(const MyApp());
 }
@@ -30,46 +27,58 @@ class MyApp extends StatelessWidget {
 class MyHomePage extends StatelessWidget {
   const MyHomePage({super.key});
 
-  // homepage layout
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: const Color(0xFFE6E6FA), // lavender
       appBar: AppBar(
-        title: const Text('sqflite'),
+        backgroundColor: const Color(0xFFE6E6FA),
+        title: const Text('Sqflite'),
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            ElevatedButton(
-              onPressed: _insert,
-              child: const Text('insert'),
-            ),
+            _buildStyledButton('insert', _insert),
             const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _query,
-              child: const Text('query'),
-            ),
+            _buildStyledButton('query', _query),
             const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _update,
-              child: const Text('update'),
-            ),
+            _buildStyledButton('update', _update),
             const SizedBox(height: 10),
-            ElevatedButton(
-              onPressed: _delete,
-              child: const Text('delete'),
-            ),
+            _buildStyledButton('delete', _delete),
           ],
         ),
       ),
     );
   }
 
-  // Button onPressed methods
+  // Reusable styled button widget
+  Widget _buildStyledButton(String label, VoidCallback onPressed) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20.0),
+      child: ElevatedButton(
+        onPressed: onPressed,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: const Color(0xFFC8A2C8), // Light lavender button
+          foregroundColor: Colors.white, // White text
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 40.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12.0),
+            side: const BorderSide(color: Colors.white, width: 2.0), // Border
+          ),
+          elevation: 5,
+        ),
+        child: Text(
+          label.toUpperCase(),
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+        ),
+      ),
+    );
+  }
+
+  // Button functions
 
   void _insert() async {
-    // row to insert
     Map<String, dynamic> row = {
       DatabaseHelper.columnName: 'Bob',
       DatabaseHelper.columnAge: 23
@@ -87,7 +96,6 @@ class MyHomePage extends StatelessWidget {
   }
 
   void _update() async {
-    // row to update
     Map<String, dynamic> row = {
       DatabaseHelper.columnId: 1,
       DatabaseHelper.columnName: 'Mary',
@@ -98,7 +106,6 @@ class MyHomePage extends StatelessWidget {
   }
 
   void _delete() async {
-    // Assuming that the number of rows is the id for the last row.
     final id = await dbHelper.queryRowCount();
     final rowsDeleted = await dbHelper.delete(id);
     debugPrint('deleted $rowsDeleted row(s): row $id');
